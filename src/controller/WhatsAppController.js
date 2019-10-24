@@ -61,7 +61,7 @@ class WhatsAppController {
         Element.prototype.hasClass = function (name) {
             return this.classList.contains(name);
         }
-        
+
         //funções para formulários
         HTMLFormElement.prototype.getForm = function () {
             return new FormData(this);
@@ -81,7 +81,7 @@ class WhatsAppController {
         //escuta os eventos do app
 
         //paineis de perfil e contato
-        this.el.myPhoto.on('click', e => { 
+        this.el.myPhoto.on('click', e => {
             //abre o painel de edição do perfil, fechando os paineis esquerdos que estiverem aberto antes
             this.closeAllLeftPanel();
             this.el.panelEditProfile.show();
@@ -93,7 +93,7 @@ class WhatsAppController {
 
         });
         this.el.btnNewContact.on('click', e => {
-             //abre o painel de adicinar contato, fechando os paineis esquerdos que estiverem aberto antes
+            //abre o painel de adicinar contato, fechando os paineis esquerdos que estiverem aberto antes
             this.closeAllLeftPanel();
             this.el.panelAddContact.show();
             setTimeout(() => {
@@ -103,15 +103,15 @@ class WhatsAppController {
         });
 
         //botões de fechar paineis
-        this.el.btnClosePanelEditProfile.on('click', e => { 
+        this.el.btnClosePanelEditProfile.on('click', e => {
             //fecha o painel de edição de perfil
             this.el.panelEditProfile.removeClass('open');
         });
-        this.el.btnClosePanelAddContact.on('click', e => { 
+        this.el.btnClosePanelAddContact.on('click', e => {
             //fecha o painel de adicionar contato
             this.el.panelAddContact.removeClass('open');
         });
-        
+
         //inputs de foto de perfil e input de name
         this.el.photoContainerEditProfile.on('click', e => {
             //abre um input type="file" para seleção de forto de perfil
@@ -133,7 +133,7 @@ class WhatsAppController {
             e.preventDefault();
             let formData = new FormData(this.el.formPanelAddContact)
         });
-        
+
         //conversas
         this.el.contactsMessagesList.querySelectorAll('.contact-item').forEach(item => {
             //abre a conversa clicada e escode a home
@@ -229,6 +229,60 @@ class WhatsAppController {
         this.el.btnFinishMicrophone.on('click', e => {
             //botão de concluir a gravação
             this.closeRecordMicrophone();
+        });
+
+        this.el.inputText.on('keypress', e => {
+            //recebe o texto digitado e se for enter faz o click no botão de enviar
+            if (e.key === 'Enter' && !e.ctrlKey) {
+                e.preventDefault();
+                this.el.btnSend.click();
+
+            }
+        });
+
+        this.el.inputText.on('keyup', e => {
+            //trata de quando deve aparecer placeholder e o botão de enviar mensagem 
+            if (this.el.inputText.innerHTML.length) {
+                this.el.inputPlaceholder.hide();
+                this.el.btnSendMicrophone.hide();
+                this.el.btnSend.show();
+            } else {
+                this.el.inputPlaceholder.show();
+                this.el.btnSendMicrophone.show();
+                this.el.btnSend.hide();
+            }
+
+        });
+
+        this.el.btnSend.on('click', e => {
+            //envia o texto em inputText
+            console.log(this.el.inputText.innerHTML);
+        });
+
+        this.el.btnEmojis.on('click', e => {
+            //abre e fecha o painel de emojis
+            this.el.panelEmojis.toggleClass('open');
+        });
+
+        this.el.panelEmojis.querySelectorAll('.emojik').forEach(emoji => {
+            //seleciona os emojis para serem incluidos no inputText quando clicados
+            emoji.on('click', e => {
+                let img = this.el.imgEmojiDefault.cloneNode();
+                //faz um clone do emoji para ser enviado no input text
+
+                img.style.cssText = emoji.style.cssText;
+                img.dataset.unicode = emoji.dataset.unicode;
+                img.alt = emoji.dataset.unicode;
+
+                emoji.classList.forEach(name=>{
+                    img.classList.add(name);
+                });
+                //adiciona todas as classes que os emojis tem nas classes do img
+
+                this.el.inputText.appendChild(img);
+                this.el.inputText.dispatchEvent(new Event('keyup')); 
+                //precisa acionar o evento keyup para remover o placeholder 
+            });
         });
 
 
