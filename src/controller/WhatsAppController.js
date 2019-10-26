@@ -174,6 +174,8 @@ class WhatsAppController {
             this.el.panelCamera.css({
                 'height': 'calc(100% - 120px)'
             });
+            this._camera = new CameraController(this.el.videoCamera);
+            //instancia a classe que recebe a tela da câmerda
         });
         this.el.btnClosePanelCamera.on('click', e => {
             //fecha o painel da câmera
@@ -274,17 +276,43 @@ class WhatsAppController {
                 img.dataset.unicode = emoji.dataset.unicode;
                 img.alt = emoji.dataset.unicode;
 
-                emoji.classList.forEach(name=>{
+                emoji.classList.forEach(name => {
                     img.classList.add(name);
                 });
                 //adiciona todas as classes que os emojis tem nas classes do img
 
-                this.el.inputText.appendChild(img);
-                this.el.inputText.dispatchEvent(new Event('keyup')); 
+
+                let cursor = window.getSelection();
+                //recebe a seleção criada
+
+                //descobre onde está focado o cursor para inserir o emoji onde ele estiver
+                if (!cursor.focusNode || !cursor.focusNode.id == 'input-text') {
+                    //se não estiver focado em nada e se o foco não for o input, coloca o focus no inputText 
+                    this.el.inputText.focus();
+                    let cursor = window.getSelection();//recebe onde no inputtext está a seleção
+                }
+                
+                //subistituição de texto selecionado por emoji
+
+                let range = document.createRange();
+                //recebe o intervalo da seleção feita
+                range = cursor.getRangeAt(0);//posição do cursor
+                range.deleteContents();
+                //deleta a seleção para subistituir por emoji
+
+                let frag = document.createDocumentFragment();
+                //cria um fragmento de um documento
+                frag.appendChild(img);
+                //framento recebe o emoji
+                range.insertNode(frag);
+                //insere o fragmento onde estava a seleção
+                range.setStartAfter(img);
+                //define que o cursor deve ficar depois do emoji
+
+                this.el.inputText.dispatchEvent(new Event('keyup'));
                 //precisa acionar o evento keyup para remover o placeholder 
             });
         });
-
 
     }
 
